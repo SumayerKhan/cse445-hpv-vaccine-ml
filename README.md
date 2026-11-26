@@ -42,6 +42,7 @@ What exists today:
 | `data/idea2_hpv_vaccine_bangladesh/s003.csv` | The raw file from the paper: 2,151 rows, 131 columns. **Never edit it.** |
 | `data/hpv_clean.csv` | **The one clean file. Every notebook reads this file.** 2,147 rows, 101 columns. |
 | `notebooks/01_clean.ipynb` | How the clean file was made, with the reason for every decision |
+| `checks/sanity_check_clean_file.py` | 16 checks that compare the clean file with the raw file. All pass. |
 
 ## 3. Words we use
 
