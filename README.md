@@ -135,7 +135,7 @@ There are 97 features. We split them into five groups. Each member takes one.
 | Punno | A. The parent and the family | 22 | `notebooks/02_eda_punno.ipynb` |
 | Rio | B. HPV and the HPV vaccine: heard of it, and from where | 20 | `notebooks/02_eda_rio.ipynb` |
 | Udoy | C. Cervical cancer and its vaccine: heard of it, and from where | 20 | `notebooks/02_eda_udoy.ipynb` |
-| Avishekh | E. Beliefs | 20 | `notebooks/02_eda_avishekh.ipynb` |
+| Avishek | E. Beliefs | 20 | `notebooks/02_eda_avishek.ipynb` |
 
 Copy the list of your own group into your notebook:
 
