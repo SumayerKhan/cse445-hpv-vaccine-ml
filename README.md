@@ -129,13 +129,13 @@ If yes, the feature can help a model. If no, it cannot. Sir asked us to understa
 
 There are 97 features. We split them into five groups. Each member takes one.
 
-| Member | Group | Features |
-|---|---|---|
-| Member 1 (lead) | D. Other knowledge, and cues to action | 15 |
-| Member 2 | A. The parent and the family | 22 |
-| Member 3 | B. HPV and the HPV vaccine: heard of it, and from where | 20 |
-| Member 4 | C. Cervical cancer and its vaccine: heard of it, and from where | 20 |
-| Member 5 | E. Beliefs | 20 |
+| Member | Group | Features | Your notebook |
+|---|---|---|---|
+| Sajid (lead) | D. Other knowledge, and cues to action | 15 | `notebooks/02_eda_sajid.ipynb` |
+| Punno | A. The parent and the family | 22 | `notebooks/02_eda_punno.ipynb` |
+| Rio | B. HPV and the HPV vaccine: heard of it, and from where | 20 | `notebooks/02_eda_rio.ipynb` |
+| Udoy | C. Cervical cancer and its vaccine: heard of it, and from where | 20 | `notebooks/02_eda_udoy.ipynb` |
+| Avishekh | E. Beliefs | 20 | `notebooks/02_eda_avishekh.ipynb` |
 
 Copy the list of your own group into your notebook:
 
