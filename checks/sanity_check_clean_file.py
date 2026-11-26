@@ -25,7 +25,7 @@ al={k:same_col(k) for k in same}
 P(all(al.values()),'2. clean rows are the raw rows in the same order (checked on %d untouched columns)'%len(same)+('' if all(al.values()) else ' -> '+str({k:v for k,v in al.items() if not v})))
 # 3 targets re-derived from raw
 va=r2.vac_accept.str.strip().str.lower();vg=r2.vac_if_gov.str.strip().str.lower()
-t3=np.where(va=='yes','Yes',np.where(vg=='yes','Only if free','Still not yes'))
+t3=np.where(va=='yes','Will vaccinate',np.where(vg=='yes','Only if free','Undecided or no'))
 P((t3==c.target_3class.values).all(),'3. target_3class equals my own re-derivation from vac_accept and vac_if_gov, all rows')
 t2=np.where(r2.accept.str.strip()=='Yes','Accept','Not accept')
 P((t2==c.target_2class.values).all(),'4. target_2class equals the authors\' accept column, all rows')
@@ -37,7 +37,7 @@ for k in feats:
     s=c[k].astype(str) if not pd.api.types.is_numeric_dtype(c[k]) else pd.qcut(c[k],10,duplicates='drop').astype(str)
     acc=pd.crosstab(s,c.target_3class).max(axis=1).sum()/len(c);worst.append((acc,k))
 worst.sort(reverse=True)
-print('     best single-feature rule accuracy:',[(k,round(a,3)) for a,k in worst[:4]],'| baseline',round((c.target_3class=='Yes').mean(),3))
+print('     best single-feature rule accuracy:',[(k,round(a,3)) for a,k in worst[:4]],'| baseline',round((c.target_3class=='Will vaccinate').mean(),3))
 P(worst[0][0]<0.85,'5. no single feature gives the target away')
 left=[k for k in ['accept','vac_accept','vac_if_gov','sl','div','dist','division','district','epi2','rel_imp','checkup','eligible','vul','sev','ben','bar','cue','vul_cat','sev_cat','ben_cat','bar_cat','age_cat','income_cat','occup2','marital2','routine_health2','routine_health3','family_type'] if k in c.columns]
 P(not left,'6. no leakage, copy or regrouped column is left'+(' -> '+str(left) if left else ''))

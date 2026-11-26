@@ -9,7 +9,7 @@ Read sections 1 to 4 first. They take ten minutes. Section 4 tells you what to d
 ## 1. The project in three sentences
 
 1. The data is 2,151 parents of daughters aged 9 to 15. They were interviewed face to face in all 8 divisions of Bangladesh in 2023 (Hawlader et al., PLOS ONE 2024).
-2. Our models read a parent's answers and predict one of three classes: **Yes**, **Only if free**, **Still not yes**. This is the parent's answer to "will you give your daughter the HPV vaccine?"
+2. Our models read a parent's answers and predict one of three classes: **Will vaccinate**, **Only if free**, **Undecided or no**. This is the parent's answer to "will you give your daughter the HPV vaccine?"
 3. The authors tested their model on the same parents it was trained on. We test on parents the model never saw, and also on a whole division it never saw.
 
 Learn these three sentences. Sir can ask any member.
@@ -52,7 +52,7 @@ What exists today:
 | Column | One question of the survey, or something made from a question |
 | Feature | A column the model is allowed to read |
 | Target | The column the model must predict. Ours is `target_3class`. |
-| Class | One of the possible answers in the target: Yes, Only if free, Still not yes |
+| Class | One of the possible values of the target: Will vaccinate, Only if free, Undecided or no |
 | Notebook | A file of code and text that you run piece by piece. Its name ends in `.ipynb`. |
 | Cell | One piece of a notebook. You run it with Shift + Enter. |
 | EDA | Exploratory data analysis. Looking at the data with tables and charts before building any model. |
@@ -68,7 +68,15 @@ The 101 columns of the clean file:
 | Targets | 2 | `target_3class` and `target_2class`. Never a feature. |
 | Meta | 2 | `meta_division` and `meta_district`. Never a feature. Only for charts and for the division test. |
 
-`target_3class` has: **Yes 1,509** (70.3%), **Only if free 354** (16.5%), **Still not yes 284** (13.2%).
+`target_3class` has three classes:
+
+| Class | Parents | Share | Who is in it |
+|---|---|---|---|
+| **Will vaccinate** | 1,509 | 70.3% | Answered "yes" to "Will you give your daughter the HPV vaccine?" |
+| **Only if free** | 354 | 16.5% | Did not answer "yes" to that, but answered "yes" to "...if the government provided it for free?" |
+| **Undecided or no** | 284 | 13.2% | Did not answer "yes" to either question. 267 said "Not sure" to both. 17 said "no" at least once. |
+
+The class names are not "Yes" and "No" on purpose. Many features have the answers "Yes" and "No", and a class must not have the same name as an answer.
 
 ## 4. What to do right now
 
@@ -179,7 +187,7 @@ pd.crosstab(df["hpv_heard"], df["target_3class"])
 
 It gives the counts:
 
-| hpv_heard | Yes | Only if free | Still not yes |
+| hpv_heard | Will vaccinate | Only if free | Undecided or no |
 |---|---|---|---|
 | No | 1,053 | 337 | 272 |
 | Yes | 456 | 17 | 12 |
@@ -190,12 +198,12 @@ Counts are hard to compare, because 1,662 parents said No and only 485 said Yes.
 (pd.crosstab(df["hpv_heard"], df["target_3class"], normalize="index") * 100).round(1)
 ```
 
-| hpv_heard | Yes | Only if free | Still not yes |
+| hpv_heard | Will vaccinate | Only if free | Undecided or no |
 |---|---|---|---|
 | No | 63.4 | 20.3 | 16.4 |
 | Yes | 94.0 | 3.5 | 2.5 |
 
-**How to read it.** Each row adds up to 100. The first row says: of the parents who had **not** heard of HPV, 63.4% answered Yes. The second row says: of the parents who **had** heard of HPV, 94.0% answered Yes.
+**How to read it.** Each row adds up to 100. The first row says: of the parents who had **not** heard of HPV, 63.4% are in the class Will vaccinate. The second row says: of the parents who **had** heard of HPV, 94.0% are in that class.
 
 **What to compare it with.** A number alone says little. Is 63.4% high or low? To know, we need the same shares for **all 2,147 parents together**, with no feature at all:
 
@@ -203,9 +211,9 @@ Counts are hard to compare, because 1,662 parents said No and only 485 said Yes.
 (df["target_3class"].value_counts(normalize=True) * 100).round(1)
 ```
 
-It gives: Yes 70.3, Only if free 16.5, Still not yes 13.2. This is our reference line. Put it under the table:
+It gives: Will vaccinate 70.3, Only if free 16.5, Undecided or no 13.2. This is our reference line. Put it under the table:
 
-| | Yes | Only if free | Still not yes |
+| | Will vaccinate | Only if free | Undecided or no |
 |---|---|---|---|
 | Had not heard of HPV | 63.4 | 20.3 | 16.4 |
 | Had heard of HPV | 94.0 | 3.5 | 2.5 |
@@ -213,12 +221,12 @@ It gives: Yes 70.3, Only if free 16.5, Still not yes 13.2. This is our reference
 
 Now compare each row with the last row:
 
-- Parents who had heard of HPV: 94.0% Yes. That is 23.7 points **above** all parents together.
-- Parents who had not heard: 63.4% Yes. That is 6.9 points **below**.
+- Parents who had heard of HPV: 94.0% Will vaccinate. That is 23.7 points **above** all parents together.
+- Parents who had not heard: 63.4% Will vaccinate. That is 6.9 points **below**.
 
 So if you know a parent's answer to this one question, you can guess their decision better than without it. That is what "this feature is linked to the target" means.
 
-If every row of a feature is close to the last row, the feature tells us nothing: knowing the answer does not help the guess. Always look at all three columns. A feature can be flat in the Yes column and still differ in the other two.
+If every row of a feature is close to the last row, the feature tells us nothing: knowing the answer does not help the guess. Always look at all three columns. A feature can be flat in the Will vaccinate column and still differ in the other two.
 
 **Step 4. Do the same for every feature in your group.** Make both tables for each one. You can ask the AI to write a loop that does it for your whole list (see the prompt below).
 
@@ -267,7 +275,7 @@ We build the two simplest models, so that every later model has something to be 
 
 | Model | What it does | Why we need it |
 |---|---|---|
-| Baseline | Always says "Yes", the most common class | It gets 70.3% with no learning. A real model must beat it. |
+| Baseline | Always says "Will vaccinate", the most common class | It gets 70.3% with no learning. A real model must beat it. |
 | Logistic regression | The method the authors used | The authors tested it on the parents it was trained on. We test it on parents it never saw. This is sentence 3 of our project. |
 
 ### What you start with
@@ -314,7 +322,7 @@ We try several kinds of models, and we test each one in two ways.
 
 ### Why test 2 matters
 
-The share of parents who said Yes differs a lot between divisions. Each area had its own interviewers. So a model may learn "who asked the question" in place of "what the parent thinks". Test 2 catches this. If a model is good in test 1 and bad in test 2, we report it openly. This test is our own addition, and it is the strongest part of the project.
+The share of parents in the class Will vaccinate differs a lot between divisions. Each area had its own interviewers. So a model may learn "who asked the question" in place of "what the parent thinks". Test 2 catches this. If a model is good in test 1 and bad in test 2, we report it openly. This test is our own addition, and it is the strongest part of the project.
 
 ### The steps
 
@@ -386,7 +394,7 @@ Then each member explains their own part aloud to the group, once, without readi
 
 You may use ChatGPT or Claude to write the code. Paste this first, every time, and then your task:
 
-> I am working on a group ML project in Google Colab with pandas and scikit-learn. The data is `hpv_clean.csv`: 2,147 parents in Bangladesh, 101 columns, from a survey about the HPV vaccine. The target is `target_3class` with the classes "Yes", "Only if free" and "Still not yes". Columns that start with `target_` or `meta_` must never be used as features. Most features are text categories such as Yes/No or Agree/Disagree. Nine features are numeric. Do not clean the data again, do not drop rows, and do not make a new train/test split. Explain each cell in one or two simple sentences.
+> I am working on a group ML project in Google Colab with pandas and scikit-learn. The data is `hpv_clean.csv`: 2,147 parents in Bangladesh, 101 columns, from a survey about the HPV vaccine. The target is `target_3class` with the classes "Will vaccinate", "Only if free" and "Undecided or no". Columns that start with `target_` or `meta_` must never be used as features. Most features are text categories such as Yes/No or Agree/Disagree. Nine features are numeric. Do not clean the data again, do not drop rows, and do not make a new train/test split. Explain each cell in one or two simple sentences.
 
 Then check what the AI gives you against the real file. The AI can be wrong about the data. **You are responsible for your part, not the AI.**
 
