@@ -1,0 +1,280 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{array}
+
+% ---------- look ----------
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\definecolor{ink}{HTML}{14213D}
+\definecolor{accent}{HTML}{1F6F8B}
+\definecolor{soft}{HTML}{5A6475}
+\definecolor{warn}{HTML}{B5532A}
+\definecolor{paper}{HTML}{FBFBF8}
+\definecolor{band}{HTML}{E8EEF2}
+\setbeamercolor{background canvas}{bg=paper}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{frametitle}{fg=accent}
+\setbeamercolor{title}{fg=accent}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{enumerate item}{fg=accent}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamerfont{title}{series=\bfseries,size=\huge}
+\setbeamertemplate{itemize item}{\textbullet}
+\setbeamertemplate{footline}{\hfill{\footnotesize\color{soft}\insertframenumber\ / \inserttotalframenumber}\hspace{1.2em}\vspace{0.8em}}
+\setlength{\leftmargini}{1.2em}
+\renewcommand{\arraystretch}{1.15}
+\newcommand{\file}[1]{\leavevmode{\ttfamily\color{accent}#1}}
+\newcommand{\key}[1]{\leavevmode{\bfseries\color{accent}#1}}
+\newcommand{\due}[1]{\leavevmode{\bfseries\color{warn}#1}}
+
+\title{Will a parent accept the HPV vaccine\\for their daughter?}
+\subtitle{CSE445 project: the plan, and who does what}
+\author{Sajid \and Punno \and Rio \and Udoy \and Avishek}
+\date{28 November 2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{The project in three sentences}
+  \begin{enumerate}
+    \setlength{\itemsep}{1.1em}
+    \item We have the answers of \key{2,147 parents} in Bangladesh to a survey about the HPV vaccine.
+    \item From a parent's answers, we predict the decision: \\
+          \key{Will vaccinate}, \key{Only if free}, or \key{Undecided or no}.
+    \item We compare several models, and we explain which answers matter and where the models fail.
+  \end{enumerate}
+  \vfill
+  {\color{soft}Everything must be handed in by \due{20 December}: the report, the notebooks, the raw data, and a text file with our names, IDs and phone numbers.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Where we are}
+  \begin{center}
+  \small\begin{tabular}{@{}llp{6.6cm}@{}}
+    \toprule
+    Stage & State & What it gave us \\
+    \midrule
+    1. Clean the data & Done & \file{data/hpv\_clean.csv}: 2,147 parents, 97 features \\
+    2. Look at the data (EDA) & Done & \file{notebooks/02\_eda.ipynb} \\
+    3. Dataset guide & Done & \file{docs/dataset\_guide.md}: what we found, and the rules \\
+    4. One train/test split & Done & \file{data/split.csv}: 1,717 train, 430 test \\
+    \midrule
+    5. Train the models & \due{Starts now} & One notebook for each of us \\
+    6. Compare and explain & Next & One table, charts \\
+    7. Report and slides & Next & The zip for sir \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{What we found in the data}
+  \begin{itemize}
+    \setlength{\itemsep}{0.9em}
+    \item \key{The baseline is 70.3\%.} That many parents are in ``Will vaccinate''. A model that always says ``Will vaccinate'' is right 70.3\% of the time. A model at 70\% has learned nothing.
+    \item \key{Knowledge is the strongest group of features.} Of the parents who have heard of HPV, 94\% are in ``Will vaccinate''.
+    \item \key{The divisions are very different.} ``Will vaccinate'' is 48\% in Chattogram and 99\% in Mymensingh.
+    \item \key{Five features contain the answer.} The barrier statements (\file{bar1} to \file{bar5}) say ``I shall not vaccinate my daughter\ldots''. This is target leakage.
+  \end{itemize}
+  \vfill
+  {\color{soft}All of it is in the dataset guide. Read it before you start.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{The plan from now}
+  \begin{center}
+  \small\begin{tabular}{@{}cp{4.6cm}p{7.4cm}@{}}
+    \toprule
+    Step & What & How \\
+    \midrule
+    1 & Each of us trains their models & In our own notebook, on the same split, with the same features \\
+    2 & We test every model in two ways & (a) On the 430 test parents it never saw. (b) Leave one division out. \\
+    3 & We give every model two sets of features & Once without the five barrier features, once with them \\
+    4 & One comparison & All results in one table, next to the baseline \\
+    5 & \key{Our main model} & A Bayesian model. The next slide says what it is. \\
+    6 & The report & Each of us writes the part about our own work \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  {\color{soft}So every model gives four scores: two ways of testing, times two sets of features.\\[0.3em]
+  Leave one division out: train on seven divisions, test on the eighth. We do this eight times, so each division is the test once. It shows if a model works in a place it has never seen.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{What is new in our project: the Bayesian model}
+  \begin{center}
+  \small\begin{tabular}{@{}p{2.8cm}p{4.6cm}p{5.4cm}@{}}
+    \toprule
+     & A classical model & \key{Our Bayesian model} \\
+    \midrule
+    What it learns & One value for each weight & A range of values for each weight \\
+    How sure it is & It does not say & Narrow range where we have many parents, wide range where we have few \\
+    What it can answer & ``Which class is this parent in?'' & Many questions about the decision, from one model that we fit once \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  {\color{soft}\small The authors used logistic regression, with one value for each weight. We did not find a Bayesian model on this data. The classical models stay: they are what we compare it with.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Five questions the Bayesian model can answer}
+  One model, fitted once. Every answer comes with how sure we are.
+  \begin{enumerate}
+    \setlength{\itemsep}{0.6em}
+    \item \key{One parent.} What is the chance of each class for this parent, and how sure are we about that chance?
+    \item \key{One answer.} How much does having heard of HPV change the chance of ``Will vaccinate''?
+    \item \key{Two answers.} Which is linked more strongly to the decision: having heard of HPV, or income?
+    \item \key{Two divisions.} Is the difference between Dhaka and Khulna real, or can it be chance?
+    \item \key{Few parents.} Barishal has only 127 parents. How much less sure are we there?
+  \end{enumerate}
+  \vfill
+  {\color{soft}\small A classical model gives one number for each of these, with no range around it.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Who trains which model}
+  \begin{center}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Member & Models & Notebook \\
+    \midrule
+    Punno & Gradient boosting & \file{04\_models\_punno.ipynb} \\
+    Rio & Decision tree, random forest & \file{04\_models\_rio.ipynb} \\
+    Udoy & k-nearest neighbours, naive Bayes & \file{04\_models\_udoy.ipynb} \\
+    Avishek & Support vector machine & \file{04\_models\_avishek.ipynb} \\
+    Sajid & Logistic regression, and the Bayesian model & \file{04\_models\_sajid.ipynb} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  All notebooks are in the folder \file{notebooks/} of our repository.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Your notebook is a question paper}
+  The frame is written. You fill in \key{three gaps}.
+  \begin{center}
+  \begin{tabular}{@{}lp{9.5cm}@{}}
+    \toprule
+    Part & What it does \\
+    \midrule
+    Frame 1 to 3 & Loads the data and the split, picks the features, turns answers into numbers \\
+    \key{GAP 1} & \key{You: the model, and the settings to try} \\
+    Frame 4 to 6 & Trains, runs both tests, shows the tables, checks, saves the result file \\
+    \key{GAP 2} & \key{You: five lines, how your model works} \\
+    \key{GAP 3} & \key{You: five lines, what your results show} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  {\color{soft}Why a frame: all five of us must use the same data, the same split and the same scores. Otherwise the results cannot be compared.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{What to do, step by step}
+  \begin{enumerate}
+    \setlength{\itemsep}{0.25em}\small
+    \item Read \file{docs/dataset\_guide.md}.
+    \item Open your notebook in Google Colab or on your laptop.
+    \item Fill in \key{GAP 1}: the model, and at least two settings with three values each.
+    \item Run the whole notebook, from the first cell to the last.
+    \item The last cell must print \key{All checks passed}. If it does not, read the error. It says what is wrong.
+    \item Read the tables. Then write \key{GAP 2} and \key{GAP 3} in your own words, with numbers from the tables.
+    \item Hand in two files: your notebook, and the file \file{results/04\_models\_<name>.csv} that it saved.
+  \end{enumerate}
+  \vfill
+  {\color{soft}Hand in: upload both files to the repository. If that fails, send them to Sajid.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Five rules}
+  \begin{enumerate}
+    \setlength{\itemsep}{0.8em}
+    \item \key{Fill in the gaps only.} Do not change any other cell.
+    \item \key{Do not load the data again, do not make a split, do not choose features.} The frame does this.
+    \item \key{The notebook must run from top to bottom} and print ``All checks passed''.
+    \item \key{You must be able to explain your model.} You may use any tool to write the code. GAP 2 and GAP 3 must be your own words, because sir can ask any of us.
+    \item \key{Stuck for more than 30 minutes? Write in the group.} Do not wait until the due date.
+  \end{enumerate}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{One more task for each of us}
+  \begin{center}
+  \begin{tabular}{@{}lp{9.4cm}@{}}
+    \toprule
+    Member & Task \\
+    \midrule
+    Punno & Join the five result files into one comparison table, and make its charts \\
+    Rio & Which features matter most, from the tree models \\
+    Udoy & Report: introduction, the data, related work \\
+    Avishek & The final slides, the zip, and the text file with names, IDs and phones \\
+    Sajid & The Bayesian model. Report: method and limits. Final check of everything. \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  Everyone also writes the report section about \key{their own model}: how it works, its results, one table.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Dates}
+  \begin{center}
+  \begin{tabular}{@{}lp{8.6cm}@{}}
+    \toprule
+    Date & What is due \\
+    \midrule
+    \due{Sunday 29 November} & Your notebook runs to ``All checks passed'', with any settings. This takes ten minutes. \\
+    \due{Wednesday 2 December} & Final notebook: good settings, GAP 2 and GAP 3 written \\
+    \due{Monday 7 December} & Your report section, and your extra task \\
+    \due{Thursday 10 December} & Everything is joined into one report \\
+    Sunday 20 December & We hand in \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vfill
+  {\color{soft}The days after 10 December are for repairs and rehearsal, not for new work.}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{If something goes wrong}
+  \begin{center}
+  \begin{tabular}{@{}p{4.8cm}p{8.4cm}@{}}
+    \toprule
+    What happens & What we do \\
+    \midrule
+    The notebook stops with an error & Read the message. Most of the time the gap is not filled in correctly. Then ask in the group. \\
+    Your model is not better than the baseline & Hand it in anyway. That is a result, and we report it. \\
+    The frame has a mistake & Tell Sajid. He fixes it once for everyone. You copy your GAP 1 cell into the new notebook. \\
+    You cannot finish in time & Say it early. Someone else can fill a gap in an hour, but not on the last day. \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{What to do today}
+  \begin{enumerate}
+    \setlength{\itemsep}{1em}
+    \item Accept the invitation to the repository, if you have not yet.
+    \item Read \file{docs/dataset\_guide.md}. It takes fifteen minutes.
+    \item Open your notebook and fill in GAP 1 with any settings.
+    \item Run it. Hand it in by \due{Sunday 29 November}.
+  \end{enumerate}
+  \vfill
+  \begin{center}
+    {\Large\color{accent}\bfseries Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

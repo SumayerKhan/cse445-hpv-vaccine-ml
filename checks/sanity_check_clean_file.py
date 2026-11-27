@@ -4,7 +4,7 @@ It does not reuse any code from notebooks/01_clean.ipynb.
 """
 import pandas as pd, numpy as np, itertools, warnings
 warnings.filterwarnings('ignore')
-raw=pd.read_csv('data/idea2_hpv_vaccine_bangladesh/s003.csv');c=pd.read_csv('data/hpv_clean.csv')
+raw=pd.read_csv('data/raw/s003.csv');c=pd.read_csv('data/hpv_clean.csv')
 P=lambda ok,msg:print(('PASS  ' if ok else 'FAIL  ')+msg)
 print('raw',raw.shape,'clean',c.shape)
 # 1 row accounting, done independently

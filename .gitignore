@@ -4,3 +4,10 @@ __pycache__/
 *.zip
 proposal.html
 .~lock.*#
+# LaTeX leftovers
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
